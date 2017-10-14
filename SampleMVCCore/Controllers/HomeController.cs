@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using SampleMVCCore.Models;
 using MyLibrary;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SampleMVCCore.Controllers
 {
@@ -14,23 +15,33 @@ namespace SampleMVCCore.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+
         public HomeController(UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        public async Task CreateUser()
+        {
+            var user1 = new ApplicationUser { UserName = "budi@gmail.com", Email = "budi@gmail.com" };
+            var user2 = new ApplicationUser { UserName = "bambang@gmail.com", Email = "bambang@gmail.com" };
+
+            //string randPass = Guid.NewGuid().ToString().Substring(0, 5);
+            await _userManager.CreateAsync(user1, "rahasia");
+            await _userManager.CreateAsync(user2, "rahasia");
+            //email ke user
 
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            Movie m1 = new Movie { ID = 1, Genre = "Horror" };
-            Movie m2 = m1;
-            m1.Genre = "Comedy";
-
-            ViewData["Genre1"] = m1.Genre;
-            ViewData["Genre2"] = m2.Genre;
+            await CreateUser();
             return View();
         }
 
+        [Authorize]
         public IActionResult About()
         {
             ViewData["Message"] = "Your application description page.";
